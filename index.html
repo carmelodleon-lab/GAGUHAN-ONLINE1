@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gaguhan Online - Live Chat</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #0d0d0d; color: #fff; margin: 0; padding: 0; }
+
     /* Floating chat container */
     #chat-container {
       position: fixed;
@@ -13,49 +14,68 @@
       right: 20px;
       width: 350px;
       max-width: 90%;
-      background: #fff;
-      border: 1px solid #ccc;
+      height: 400px;
+      max-height: 80%;
+      background: #1a1a1a;
+      border: 1px solid #333;
       border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 20px rgba(255,63,63,0.5);
       display: flex;
       flex-direction: column;
       overflow: hidden;
       z-index: 9999;
+      resize: both; /* Makes the chat box resizable */
     }
+
     #chat-header {
-      background: #007BFF;
+      background: #ff3f3f;
       color: white;
       padding: 10px;
       font-weight: bold;
       text-align: center;
       cursor: pointer;
+      user-select: none;
     }
+
     #chat-body {
       flex: 1;
-      height: 300px;
       overflow-y: auto;
       padding: 10px;
+      background: #0d0d0d;
     }
+
     #chat-body .msg { margin-bottom: 5px; }
-    #chat-body .user { font-weight: bold; color: #007BFF; }
+    #chat-body .user { font-weight: bold; color: #ff3f3f; }
+
     #chat-input {
       display: flex;
-      border-top: 1px solid #ccc;
+      border-top: 1px solid #333;
     }
+
     #message {
       flex: 1;
       padding: 10px;
       border: none;
       outline: none;
+      background: #1a1a1a;
+      color: #fff;
     }
+
     #send-btn {
-      background: #007BFF;
+      background: #ff3f3f;
       color: white;
       border: none;
       padding: 10px 15px;
       cursor: pointer;
+      transition: 0.2s;
     }
-    #send-btn:hover { background: #0056b3; }
+
+    #send-btn:hover { background: #ff1a1a; }
+
+    /* Scrollbar for chat */
+    #chat-body::-webkit-scrollbar { width: 8px; }
+    #chat-body::-webkit-scrollbar-thumb { background: #ff3f3f; border-radius: 4px; }
+    #chat-body::-webkit-scrollbar-track { background: #1a1a1a; }
   </style>
 </head>
 <body>
@@ -77,13 +97,13 @@
 <script>
   // Firebase config
   const firebaseConfig = {
-       apiKey: "AIzaSyBL-gviQpMUc-XronGKxolcvtVC1KoI00w",
-       authDomain: "gaguhan-online-4ef04.firebaseapp.com",
-       projectId: "gaguhan-online-4ef04",
-       storageBucket: "gaguhan-online-4ef04.firebasestorage.app",
-       messagingSenderId: "485391530954",
-       appId: "1:485391530954:web:9c3b9ad00d82b37be8ad33",
-       measurementId: "G-255B8NEF9Y"
+    apiKey: "AIzaSyBL-gviQpMUc-XronGKxolcvtVC1KoI00w",
+    authDomain: "gaguhan-online-4ef04.firebaseapp.com",
+    projectId: "gaguhan-online-4ef04",
+    storageBucket: "gaguhan-online-4ef04.firebasestorage.app",
+    messagingSenderId: "485391530954",
+    appId: "1:485391530954:web:9c3b9ad00d82b37be8ad33",
+    measurementId: "G-255B8NEF9Y"
   };
 
   firebase.initializeApp(firebaseConfig);
@@ -94,7 +114,6 @@
   const chatBody = document.getElementById('chat-body');
   const sendBtn = document.getElementById('send-btn');
 
-  // Send message
   function sendMessage() {
     const msg = messageInput.value.trim();
     if(!msg) return;
@@ -107,12 +126,9 @@
   }
 
   sendBtn.addEventListener('click', sendMessage);
-  messageInput.addEventListener('keypress', function(e){
-    if(e.key === 'Enter') sendMessage();
-  });
+  messageInput.addEventListener('keypress', e => { if(e.key === 'Enter') sendMessage(); });
 
-  // Listen for new messages
-  db.ref('gaguhanMessages').on('child_added', function(snapshot){
+  db.ref('gaguhanMessages').on('child_added', snapshot => {
     const data = snapshot.val();
     const div = document.createElement('div');
     div.classList.add('msg');
