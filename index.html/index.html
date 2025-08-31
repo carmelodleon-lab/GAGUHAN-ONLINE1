@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gaguhan Online - Live Chat</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+    /* Floating chat container */
+    #chat-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 350px;
+      max-width: 90%;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 9999;
+    }
+    #chat-header {
+      background: #007BFF;
+      color: white;
+      padding: 10px;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+    }
+    #chat-body {
+      flex: 1;
+      height: 300px;
+      overflow-y: auto;
+      padding: 10px;
+    }
+    #chat-body .msg { margin-bottom: 5px; }
+    #chat-body .user { font-weight: bold; color: #007BFF; }
+    #chat-input {
+      display: flex;
+      border-top: 1px solid #ccc;
+    }
+    #message {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      outline: none;
+    }
+    #send-btn {
+      background: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+    }
+    #send-btn:hover { background: #0056b3; }
+  </style>
+</head>
+<body>
+
+<!-- Floating Chat -->
+<div id="chat-container">
+  <div id="chat-header">Gaguhan Online Live Chat</div>
+  <div id="chat-body"></div>
+  <div id="chat-input">
+    <input type="text" id="message" placeholder="Type a message...">
+    <button id="send-btn">Send</button>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+  // Firebase config
+  const firebaseConfig = {
+       apiKey: "AIzaSyBL-gviQpMUc-XronGKxolcvtVC1KoI00w",
+       authDomain: "gaguhan-online-4ef04.firebaseapp.com",
+       projectId: "gaguhan-online-4ef04",
+       storageBucket: "gaguhan-online-4ef04.firebasestorage.app",
+       messagingSenderId: "485391530954",
+       appId: "1:485391530954:web:9c3b9ad00d82b37be8ad33",
+       measurementId: "G-255B8NEF9Y"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const username = 'GaguhanUser' + Math.floor(Math.random() * 10000);
+
+  const messageInput = document.getElementById('message');
+  const chatBody = document.getElementById('chat-body');
+  const sendBtn = document.getElementById('send-btn');
+
+  // Send message
+  function sendMessage() {
+    const msg = messageInput.value.trim();
+    if(!msg) return;
+    db.ref('gaguhanMessages').push().set({
+      user: username,
+      text: msg,
+      time: Date.now()
+    });
+    messageInput.value = '';
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  messageInput.addEventListener('keypress', function(e){
+    if(e.key === 'Enter') sendMessage();
+  });
+
+  // Listen for new messages
+  db.ref('gaguhanMessages').on('child_added', function(snapshot){
+    const data = snapshot.val();
+    const div = document.createElement('div');
+    div.classList.add('msg');
+    div.innerHTML = `<span class="user">${data.user}:</span> ${data.text}`;
+    chatBody.appendChild(div);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  });
+
+  // Toggle chat visibility
+  const chatContainer = document.getElementById('chat-container');
+  const chatHeader = document.getElementById('chat-header');
+  chatHeader.addEventListener('click', () => {
+    if(chatBody.style.display === 'none') {
+      chatBody.style.display = 'block';
+      document.getElementById('chat-input').style.display = 'flex';
+    } else {
+      chatBody.style.display = 'none';
+      document.getElementById('chat-input').style.display = 'none';
+    }
+  });
+</script>
+</body>
+</html>
